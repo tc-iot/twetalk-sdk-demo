@@ -19,6 +19,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.tencent.twetalk.protocol.ImageMessage
 import java.io.ByteArrayOutputStream
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class VideoChatCameraManager(
     private val lifecycleOwner: LifecycleOwner,
@@ -28,17 +30,26 @@ class VideoChatCameraManager(
     companion object {
         private const val TAG = "VideoChatCameraManager"
 
-        // JPEG 压缩质量（0-100）
-        private const val JPEG_QUALITY = 85
+        // JPEG 压缩质量（0-100）：视觉理解场景通常不需要很高质量，降低体积更利于端到端时延
+        private const val JPEG_QUALITY = 60
 
-        // 目标分辨率（作为参考，实际会根据设备能力调整）
+
+        // 预览目标分辨率（作为参考，实际会根据设备能力调整）
         private val TARGET_RESOLUTION = Size(1280, 720)
+
+        // 拍照目标分辨率：只作用于拍照，不影响预览
+        private val PHOTO_TARGET_RESOLUTION = Size(640, 480)
     }
 
     private var imageCapture: ImageCapture? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
     private var lensFacing = CameraSelector.LENS_FACING_BACK
+
+    // 拍照图片处理线程（避免在主线程做 ImageProxy->Bitmap->JPEG 这种重活）
+    private val imageProcessingExecutor: ExecutorService = Executors.newSingleThreadExecutor { r ->
+        Thread(r, "twetalk-photo").apply { priority = Thread.NORM_PRIORITY }
+    }
     
     fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(previewView.context)
@@ -51,20 +62,21 @@ class VideoChatCameraManager(
     
     private fun bindCameraUseCases() {
         val cameraProvider = cameraProvider ?: return
-        val resolutionSelector = createResolutionSelector()
+        val previewResolutionSelector = createResolutionSelector()
+        val photoResolutionSelector = createPhotoResolutionSelector()
 
-        // 预览配置
+        // 预览配置（保持现有策略，不改预览分辨率选择）
         val preview = Preview.Builder()
-            .setResolutionSelector(resolutionSelector)
+            .setResolutionSelector(previewResolutionSelector)
             .build()
             .also {
                 it.setSurfaceProvider(previewView.surfaceProvider)
             }
         
-        // 图片捕获配置
+        // 图片捕获配置（只限制拍照分辨率）
         imageCapture = ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            .setResolutionSelector(resolutionSelector)
+            .setResolutionSelector(photoResolutionSelector)
             .setJpegQuality(JPEG_QUALITY)
             .setTargetRotation(previewView.display.rotation)
             .build()
@@ -89,15 +101,24 @@ class VideoChatCameraManager(
     
     fun captureImage() {
         val imageCapture = imageCapture ?: return
-        
+        val mainExecutor = ContextCompat.getMainExecutor(previewView.context)
+
         imageCapture.takePicture(
-            ContextCompat.getMainExecutor(previewView.context),
+            imageProcessingExecutor,
             object : ImageCapture.OnImageCapturedCallback() {
                 override fun onCaptureSuccess(image: ImageProxy) {
-                    // 转换为 JPEG ByteArray
-                    val imgMsg = imageProxyToImageMessage(image)
-                    onImageCaptured(imgMsg)
-                    image.close()
+                    imageProcessingExecutor.execute {
+                        try {
+                            // 转换为 JPEG ByteArray（后台线程）
+                            val imgMsg = imageProxyToImageMessage(image)
+                            // 回到主线程派发回调（避免调用方误用 UI）
+                            mainExecutor.execute { onImageCaptured(imgMsg) }
+                        } catch (t: Throwable) {
+                            Log.e(TAG, "Failed to process captured image", t)
+                        } finally {
+                            image.close()
+                        }
+                    }
                 }
                 
                 override fun onError(exception: ImageCaptureException) {
@@ -118,7 +139,7 @@ class VideoChatCameraManager(
     }
 
     /**
-     * 创建智能分辨率选择器
+     * 创建智能分辨率选择器（用于预览）
      */
     private fun createResolutionSelector(): ResolutionSelector {
         val context = previewView.context
@@ -149,6 +170,25 @@ class VideoChatCameraManager(
     }
 
     /**
+     * 创建拍照用分辨率选择器：只作用于拍照，不影响预览。
+     * 目标：避免拍照走到 1920x1080 这种大图导致编码/发送阻塞与 GC 抖动。
+     */
+    private fun createPhotoResolutionSelector(): ResolutionSelector {
+        return ResolutionSelector.Builder()
+            .setResolutionStrategy(
+                ResolutionStrategy(
+                    PHOTO_TARGET_RESOLUTION,
+                    // 优先选择不高于目标分辨率的档位（更利于时延），实在没有再往上找
+                    ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER
+                )
+            )
+            .setAspectRatioStrategy(
+                AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY
+            )
+            .build()
+    }
+
+    /**
      * 计算最佳分辨率
      * 考虑屏幕尺寸和常用分辨率
      */
@@ -170,7 +210,7 @@ class VideoChatCameraManager(
     }
 
     private fun imageProxyToImageMessage(image: ImageProxy): ImageMessage {
-        var bitmap = image.toBitmap()
+        val srcBitmap = image.toBitmap()
 
         // 获取旋转角度
         val rotationDegrees = image.imageInfo.rotationDegrees
@@ -178,20 +218,22 @@ class VideoChatCameraManager(
         // 判断是否需要镜像
 //        val needMirror = lensFacing == CameraSelector.LENS_FACING_FRONT
 
-        if (rotationDegrees != 0) {
-            bitmap = rotateBitmap(bitmap, rotationDegrees)
-        } 
-        
-        val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, stream)
-
-        val byteArray = stream.toByteArray()
-        val finalWidth = bitmap.width
-        val finalHeight = bitmap.height
-
-        if (bitmap != image.toBitmap()) {
-            bitmap.recycle()
+        val finalBitmap = if (rotationDegrees != 0) {
+            rotateBitmap(srcBitmap, rotationDegrees)
+        } else {
+            srcBitmap
         }
+
+        val (byteArray, finalWidth, finalHeight) = ByteArrayOutputStream().use { stream ->
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, stream)
+            Triple(stream.toByteArray(), finalBitmap.width, finalBitmap.height)
+        }
+
+        // 释放 bitmap，避免大图引发后续 GC 抖动
+        if (finalBitmap !== srcBitmap) {
+            finalBitmap.recycle()
+        }
+        srcBitmap.recycle()
 
         return ImageMessage(
             byteArray,
@@ -236,5 +278,6 @@ class VideoChatCameraManager(
         cameraProvider?.unbindAll()
         camera = null
         imageCapture = null
+        imageProcessingExecutor.shutdown()
     }
 }
