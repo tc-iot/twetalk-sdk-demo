@@ -16,6 +16,7 @@ import com.tencent.twetalk_sdk_demo.BaseActivity
 import com.tencent.twetalk_sdk_demo.R
 import com.tencent.twetalk_sdk_demo.data.Constants
 import com.tencent.twetalk_sdk_demo.databinding.ActivityWxCallBinding
+import com.tencent.twetalk_sdk_demo.utils.ScreenAdaptHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -44,6 +45,9 @@ class WxCallActivity : BaseActivity<ActivityWxCallBinding>() {
     // 通话计时
     private var callStartTime: Long = 0
     private var timerJob: Job? = null
+    
+    // 小屏简化模式
+    private var isTinyScreen = false
 
     override fun getViewBinding() = ActivityWxCallBinding.inflate(layoutInflater)
 
@@ -55,11 +59,24 @@ class WxCallActivity : BaseActivity<ActivityWxCallBinding>() {
 
     override fun initView() {
         parseIntent()
+        checkScreenSize()
         setupUI()
         setupClickListeners()
         setupOnBackPressedCallback()
         updateUIForState()
         observeCallState()
+    }
+    
+    /**
+     * 检查屏幕尺寸，启用简化模式
+     */
+    private fun checkScreenSize() {
+        isTinyScreen = ScreenAdaptHelper.isTinyScreen(this)
+        
+        if (isTinyScreen) {
+            // 极小屏简化模式：隐藏 OpenId 区域
+            binding.layoutOpenId.visibility = View.GONE
+        }
     }
 
     private fun parseIntent() {

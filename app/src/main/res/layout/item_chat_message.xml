@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:gravity="end"
         android:orientation="horizontal"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -41,7 +41,7 @@
                         android:id="@+id/tvUserMessage"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:maxWidth="240dp"
+                        android:maxWidth="224dp"
                         android:text="用户消息内容"
                         android:textColor="@color/message_text"
                         android:textSize="16sp"
@@ -64,6 +64,7 @@
         </LinearLayout>
 
         <ImageView
+            android:id="@+id/ivUserAvatar"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="bottom"
@@ -71,7 +72,9 @@
             android:background="@drawable/bg_avatar_user"
             android:contentDescription="用户头像"
             android:padding="6dp"
-            android:src="@drawable/ic_person" />
+            android:src="@drawable/ic_person"
+            tools:visibility="gone"
+            />
 
     </LinearLayout>
 
@@ -82,9 +85,10 @@
         android:layout_height="wrap_content"
         android:gravity="start"
         android:orientation="horizontal"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <ImageView
+            android:id="@+id/ivBotAvatar"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="bottom"
@@ -92,7 +96,9 @@
             android:background="@drawable/bg_avatar_ai"
             android:contentDescription="AI头像"
             android:padding="6dp"
-            android:src="@drawable/ic_ai" />
+            android:src="@drawable/ic_ai"
+            tools:visibility="gone"
+            />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -149,7 +155,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <TextView
             android:id="@+id/tvSystemMessage"
@@ -171,7 +177,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="end"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone" >
 
         <TextView
             android:id="@+id/tvUserVideoMessage"
@@ -193,7 +200,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="start"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone" >
 
         <TextView
             android:id="@+id/tvAIVideoMessage"

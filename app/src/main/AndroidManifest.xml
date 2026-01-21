@@ -32,6 +32,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Twetalksdkdemo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,36 +43,43 @@
         <activity
             android:name=".DeviceBindActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Twetalksdkdemo" />
 
         <activity
             android:name=".chat.WebSocketChatActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Twetalksdkdemo" />
 
         <activity
             android:name=".chat.TRTCChatActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Twetalksdkdemo" />
 
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Twetalksdkdemo" />
 
         <activity
             android:name=".HistoryActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Twetalksdkdemo" />
 
         <activity
             android:name=".AiConfigActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Twetalksdkdemo" />
 
         <activity
             android:name=".call.CallConfigActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Twetalksdkdemo" />
 
         <activity

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 
+    小屏适配尺寸文件（默认值 - 适用于 ≤320dp 极小屏）
+    sw360dp 和 sw400dp 会覆盖这些值
+    -->
+
+    <!-- ========== 通用间距 ========== -->
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">12dp</dimen>
+    <dimen name="spacing_lg">16dp</dimen>
+    <dimen name="spacing_xl">24dp</dimen>
+
+    <!-- ========== 聊天页面 (activity_chat) ========== -->
+    <dimen name="chat_status_bar_padding">8dp</dimen>
+    <dimen name="chat_message_list_padding">8dp</dimen>
+    <dimen name="chat_control_panel_padding">10dp</dimen>
+    <dimen name="chat_audio_visualizer_height">32dp</dimen>
+    <dimen name="chat_audio_visualizer_margin_bottom">10dp</dimen>
+    <dimen name="chat_record_hint_margin_top">6dp</dimen>
+    <dimen name="chat_record_hint_text_size">10sp</dimen>
+    <dimen name="chat_audio_status_text_size">12sp</dimen>
+    <dimen name="chat_chip_margin_start">4dp</dimen>
+    <dimen name="chat_toolbar_height">48dp</dimen>
+
+    <!-- ========== 视频聊天页面 (activity_video_chat) ========== -->
+    <dimen name="video_top_bar_padding">8dp</dimen>
+    <dimen name="video_message_list_height">120dp</dimen>
+    <dimen name="video_message_list_padding">6dp</dimen>
+    <dimen name="video_control_panel_padding">12dp</dimen>
+    <dimen name="video_fab_margin_end">16dp</dimen>
+
+    <!-- ========== 通话页面 (activity_wx_call) ========== -->
+    <dimen name="call_top_margin">24dp</dimen>
+    <dimen name="call_bottom_margin">24dp</dimen>
+    <dimen name="call_horizontal_margin">16dp</dimen>
+    <dimen name="call_avatar_size">56dp</dimen>
+    <dimen name="call_avatar_padding">14dp</dimen>
+    <dimen name="call_nickname_margin_top">12dp</dimen>
+    <dimen name="call_nickname_text_size">16sp</dimen>
+    <dimen name="call_openid_margin_top">4dp</dimen>
+    <dimen name="call_openid_icon_size">12dp</dimen>
+    <dimen name="call_openid_text_size">10sp</dimen>
+    <dimen name="call_openid_max_width">140dp</dimen>
+    <dimen name="call_status_margin_top">16dp</dimen>
+    <dimen name="call_status_text_size">12sp</dimen>
+    <dimen name="call_button_label_margin_top">4dp</dimen>
+    <dimen name="call_button_label_text_size">10sp</dimen>
+
+</resources>

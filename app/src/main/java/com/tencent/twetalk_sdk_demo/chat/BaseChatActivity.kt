@@ -45,6 +45,7 @@ import com.tencent.twetalk_sdk_demo.data.Constants
 import com.tencent.twetalk_sdk_demo.data.MessageStatus
 import com.tencent.twetalk_sdk_demo.databinding.ActivityChatBinding
 import com.tencent.twetalk_sdk_demo.utils.PermissionHelper
+import com.tencent.twetalk_sdk_demo.utils.ScreenAdaptHelper
 import com.tencent.twetalk_sdk_demo.video.VideoChatCameraManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -76,6 +77,9 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
     protected var currentCallOpenId: String? = null
     protected var currentCallNickname: String? = null
     protected var currentCallRoomId: String? = null
+    
+    // 小屏简化模式
+    protected var isTinyScreen = false
 
     // 通话页面启动器
     protected val callActivityLauncher = registerForActivityResult(
@@ -127,6 +131,9 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
     override fun getViewBinding() = ActivityChatBinding.inflate(layoutInflater)
 
     override fun initView() {
+        // 检查屏幕尺寸
+        checkScreenSize()
+        
         isVideoMode = intent.getBundleExtra(Constants.KEY_CHAT_BUNDLE)
             ?.getBoolean(Constants.KEY_VIDEO_MODE) ?: false
         isPushToTalkMode = intent.getBundleExtra(Constants.KEY_CHAT_BUNDLE)
@@ -141,6 +148,13 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
             showAudioUI()
             setupAudioUI()
         }
+    }
+    
+    /**
+     * 检查屏幕尺寸，启用简化模式
+     */
+    private fun checkScreenSize() {
+        isTinyScreen = ScreenAdaptHelper.isTinyScreen(this)
     }
 
     private fun setupAudioUI() {
@@ -345,7 +359,7 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
     }
 
     private fun setupVideoRecyclerView() {
-        messageAdapter = ChatMessageAdapter(true)
+        messageAdapter = ChatMessageAdapter(true, isTinyScreen)
 
         binding.videoChat.recyclerViewMessages.apply {
             adapter = messageAdapter
@@ -354,7 +368,7 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
     }
 
     private fun setupAudioRecyclerView() {
-        messageAdapter = ChatMessageAdapter()
+        messageAdapter = ChatMessageAdapter(isTinyScreen = isTinyScreen)
 
         binding.recyclerViewMessages.apply {
             adapter = messageAdapter
@@ -367,6 +381,16 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
 
         if (isTRTCConnected()) {
             binding.chipAudioFormat.isVisible = false
+        }
+        
+        // 极小屏简化模式：
+        // 1. 不展示音频控制区（无法手动停止录音）
+        // 2. 不展示 statusBar
+        // 3. 隐藏对话头像
+        // 4. UI 尺寸数值调整
+        if (isTinyScreen) {
+            binding.statusBar.visibility = View.GONE
+            binding.audioControlPanel.visibility = View.GONE
         }
 
         binding.chipAudioFormat.text = audioFormatStr
@@ -481,7 +505,10 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
         if (!isVideoMode) {
             if (isTyping) {
                 binding.tvAudioStatus.text = getString(R.string.processing)
-                binding.audioVisualizerContainer.visibility = View.VISIBLE
+                // 极小屏简化模式：不显示音频波形区域
+                if (!isTinyScreen) {
+                    binding.audioVisualizerContainer.visibility = View.VISIBLE
+                }
             } else {
                 binding.audioVisualizerContainer.visibility = View.GONE
             }

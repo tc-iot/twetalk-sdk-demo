@@ -12,7 +12,8 @@ import com.tencent.twetalk_sdk_demo.data.MessageType
 import com.tencent.twetalk_sdk_demo.databinding.ItemChatMessageBinding
 
 class ChatMessageAdapter(
-    private val isVideoMode: Boolean = false
+    private val isVideoMode: Boolean = false,
+    private val isTinyScreen: Boolean
 ) : ListAdapter<ChatMessage, ChatMessageAdapter.MessageViewHolder>(MessageDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
@@ -22,7 +23,7 @@ class ChatMessageAdapter(
             false
         )
 
-        return MessageViewHolder(binding, isVideoMode)
+        return MessageViewHolder(binding, isVideoMode, isTinyScreen)
     }
 
     override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
@@ -31,7 +32,8 @@ class ChatMessageAdapter(
 
     class MessageViewHolder(
         private val binding: ItemChatMessageBinding,
-        private val isVideoMode: Boolean
+        private val isVideoMode: Boolean,
+        private val isTinyScreen: Boolean
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(message: ChatMessage) {
@@ -57,6 +59,10 @@ class ChatMessageAdapter(
                             layoutUserMessage.visibility = View.VISIBLE
                             tvUserMessage.text = message.content
                             tvUserTime.text = message.getFormattedTime()
+
+                            if (isTinyScreen) {
+                                ivUserAvatar.visibility = View.GONE
+                            }
                         }
                     }
 
@@ -71,6 +77,10 @@ class ChatMessageAdapter(
                             layoutAiMessage.visibility = View.VISIBLE
                             tvAiMessage.text = content
                             tvAiTime.text = message.getFormattedTime()
+
+                            if (isTinyScreen) {
+                                ivBotAvatar.visibility = View.GONE
+                            }
                         }
                     }
                 }

@@ -11,7 +11,7 @@
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="0dp"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="@dimen/chat_toolbar_height"
         android:background="@color/primary_blue"
         app:title="@string/chat_title"
         app:titleTextColor="@color/white"
@@ -27,7 +27,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        android:padding="12dp"
+        android:padding="@dimen/chat_status_bar_padding"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         app:layout_constraintEnd_toEndOf="parent"
@@ -48,7 +48,7 @@
             android:id="@+id/chipAudioFormat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="@dimen/chat_chip_margin_start"
             android:text="OPUS"
             android:textColor="@color/gray_text"
             app:chipBackgroundColor="@color/gray_medium"
@@ -77,7 +77,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:padding="12dp"
+        android:padding="@dimen/chat_message_list_padding"
         app:layout_constraintBottom_toTopOf="@id/audioControlPanel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -93,7 +93,7 @@
         android:layout_height="wrap_content"
         android:background="@color/white"
         android:orientation="vertical"
-        android:padding="16dp"
+        android:padding="@dimen/chat_control_panel_padding"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -102,8 +102,8 @@
         <LinearLayout
             android:id="@+id/audioVisualizerContainer"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginBottom="16dp"
+            android:layout_height="@dimen/chat_audio_visualizer_height"
+            android:layout_marginBottom="@dimen/chat_audio_visualizer_margin_bottom"
             android:background="@drawable/bg_audio_visualizer"
             android:gravity="center"
             android:orientation="horizontal"
@@ -115,7 +115,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/listening"
                 android:textColor="@color/primary_blue"
-                android:textSize="14sp"
+                android:textSize="@dimen/chat_audio_status_text_size"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -146,10 +146,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/chat_record_hint_margin_top"
             android:text="@string/hold_to_speak"
             android:textColor="@color/gray_text"
-            android:textSize="12sp" />
+            android:textSize="@dimen/chat_record_hint_text_size" />
 
     </LinearLayout>
 

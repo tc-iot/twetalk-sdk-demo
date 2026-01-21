@@ -38,6 +38,7 @@ import com.tencent.twetalk_audio.listener.OnRecordDataListener
 import com.tencent.twetalk_sdk_demo.data.Constants
 import com.tencent.twetalk_sdk_demo.databinding.ActivityWxCallBinding
 import com.tencent.twetalk_sdk_demo.utils.PermissionHelper
+import com.tencent.twetalk_sdk_demo.utils.ScreenAdaptHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -82,6 +83,9 @@ class WxCallOnlyActivity : BaseActivity<ActivityWxCallBinding>(), TWeTalkClientL
     // 通话计时
     private var callStartTime: Long = 0
     private var timerJob: Job? = null
+    
+    // 小屏简化模式
+    private var isTinyScreen = false
 
     // 权限请求
     private val reqPermissions = registerForActivityResult(
@@ -105,12 +109,25 @@ class WxCallOnlyActivity : BaseActivity<ActivityWxCallBinding>(), TWeTalkClientL
 
     override fun initView() {
         parseIntent()
+        checkScreenSize()
         setupUI()
         setupClickListeners()
         updateUIForState()
         setupMqttCallback()
         setupOnBackPressedCallback()
         ensurePermissionsAndStart()
+    }
+    
+    /**
+     * 检查屏幕尺寸，启用简化模式
+     */
+    private fun checkScreenSize() {
+        isTinyScreen = ScreenAdaptHelper.isTinyScreen(this)
+        
+        if (isTinyScreen) {
+            // 极小屏简化模式：隐藏 OpenId 区域
+            binding.layoutOpenId.visibility = View.GONE
+        }
     }
 
     private fun parseIntent() {

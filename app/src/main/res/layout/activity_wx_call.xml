@@ -12,7 +12,7 @@
         android:id="@+id/topArea"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="@dimen/call_top_margin"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent">
@@ -20,11 +20,11 @@
         <!-- 头像 -->
         <ImageView
             android:id="@+id/ivAvatar"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="@dimen/call_avatar_size"
+            android:layout_height="@dimen/call_avatar_size"
             android:background="@drawable/bg_avatar_call"
             android:contentDescription="@string/contact_avatar"
-            android:padding="24dp"
+            android:padding="@dimen/call_avatar_padding"
             android:src="@drawable/ic_person" />
 
         <!-- 昵称 -->
@@ -32,9 +32,9 @@
             android:id="@+id/tvNickname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="@dimen/call_nickname_margin_top"
             android:textColor="@color/white"
-            android:textSize="24sp"
+            android:textSize="@dimen/call_nickname_text_size"
             android:textStyle="bold"
             tools:text="张三" />
 
@@ -43,13 +43,13 @@
             android:id="@+id/layoutOpenId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/call_openid_margin_top"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="@dimen/call_openid_icon_size"
+                android:layout_height="@dimen/call_openid_icon_size"
                 android:contentDescription="@string/contact_open_id"
                 android:src="@drawable/ic_info"
                 app:tint="#80FFFFFF" />
@@ -60,10 +60,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:ellipsize="middle"
-                android:maxWidth="200dp"
+                android:maxWidth="@dimen/call_openid_max_width"
                 android:singleLine="true"
                 android:textColor="#80FFFFFF"
-                android:textSize="12sp"
+                android:textSize="@dimen/call_openid_text_size"
                 tools:text="oOMCN5CR14xUh7vBmxRQdSYjsLek" />
 
         </LinearLayout>
@@ -73,9 +73,9 @@
             android:id="@+id/tvStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="@dimen/call_status_margin_top"
             android:textColor="#B0B0B0"
-            android:textSize="16sp"
+            android:textSize="@dimen/call_status_text_size"
             tools:text="等待对方接听..." />
 
     </LinearLayout>
@@ -85,8 +85,8 @@
         android:id="@+id/bottomControls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="80dp"
-        android:layout_marginHorizontal="32dp"
+        android:layout_marginBottom="@dimen/call_bottom_margin"
+        android:layout_marginHorizontal="@dimen/call_horizontal_margin"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -112,10 +112,10 @@
                 android:id="@+id/tvMuteLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/call_button_label_margin_top"
                 android:text="@string/mute"
                 android:textColor="#B0B0B0"
-                android:textSize="12sp" />
+                android:textSize="@dimen/call_button_label_text_size" />
 
         </LinearLayout>
 
@@ -141,10 +141,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/call_button_label_margin_top"
                 android:text="@string/hangup"
                 android:textColor="#B0B0B0"
-                android:textSize="12sp" />
+                android:textSize="@dimen/call_button_label_text_size" />
 
         </LinearLayout>
 
@@ -171,10 +171,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/call_button_label_margin_top"
                 android:text="@string/answer"
                 android:textColor="#B0B0B0"
-                android:textSize="12sp" />
+                android:textSize="@dimen/call_button_label_text_size" />
 
         </LinearLayout>
 
