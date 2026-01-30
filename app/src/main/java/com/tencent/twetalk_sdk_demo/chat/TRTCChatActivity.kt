@@ -2,8 +2,8 @@ package com.tencent.twetalk_sdk_demo.chat
 
 import android.util.Log
 import androidx.core.content.edit
+import androidx.preference.PreferenceManager
 import com.tencent.twetalk.metrics.MetricEvent
-import com.tencent.twetalk.mqtt.MqttManager
 import com.tencent.twetalk.protocol.AudioFormat
 import com.tencent.twetalk.protocol.CallStream
 import com.tencent.twetalk.protocol.CallSubType
@@ -25,7 +25,6 @@ class TRTCChatActivity: BaseChatActivity(), TRTCClientListener {
 
     private lateinit var client: TWeTalkTRTCClient
     private lateinit var config: TRTCConfig
-    private lateinit var mqttCallback: MqttManager.MqttConnectionCallback
 
     override fun initClient() {
         val bundle = intent.getBundleExtra(Constants.KEY_CHAT_BUNDLE)
@@ -33,55 +32,41 @@ class TRTCChatActivity: BaseChatActivity(), TRTCClientListener {
         if (bundle == null) {
             showToast("没有读取到连接配置")
             finish()
+            return
         }
 
-        val language = bundle?.getString(Constants.KEY_LANGUAGE, "zh")
+        val language = bundle.getString(Constants.KEY_LANGUAGE, "zh")
 
-        mqttCallback = object : MqttManager.MqttConnectionCallback {
-            override fun onConnected() {
-                // nothing to do
-            }
+        // 从 SharedPreferences 获取设备三元组
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val productId = prefs.getString(Constants.KEY_PRODUCT_ID, "") ?: ""
+        val deviceName = prefs.getString(Constants.KEY_DEVICE_NAME, "") ?: ""
+        val deviceSecret = prefs.getString(Constants.KEY_DEVICE_SECRET, "") ?: ""
 
-            override fun onDisconnected(cause: Throwable?) {
-                this@TRTCChatActivity.showToast("设备已断开连接，请尝试重新连接！")
-                finish()
-            }
-
-            override fun onConnectFailed(cause: Throwable?) {
-                // nothing to do
-            }
-
-            override fun onMessageReceived(
-                topic: String?,
-                method: String?,
-                params: Map<String?, Any?>?
-            ) {
-                if (params == null) return
-                if (method == MqttManager.REPLY_QUERY_TRTC_ROOM || method == MqttManager.REPLY_QUERY_TRTC_AI_ROOM) {
-                    config = TRTCConfig(applicationContext).apply {
-                        sdkAppId = params["sdk_app_id"] as String
-                        userId = params["user_id"] as String
-                        userSig = params["user_sig"] as String
-                        privateKey = params["private_key"] as String
-                        roomId = params["room_id"] as String
-                    }
-
-                    client = DefaultTRTCClient(config)
-                    client.addListener(this@TRTCChatActivity)
-                    client.startConversation()
-                }
-            }
+        if (productId.isEmpty() || deviceName.isEmpty() || deviceSecret.isEmpty()) {
+            showToast("设备信息不完整，请先绑定设备")
+            finish()
+            return
         }
 
-        mqttManager?.callback = mqttCallback
+        // 使用设备三元组初始化配置
+        config = TRTCConfig(applicationContext)
+        config.productId = productId
+        config.deviceName = deviceName
+        config.deviceSecret = deviceSecret
+        config.language = language
+        config.useTRTCRecord = true
+
+        client = DefaultTRTCClient(config)
+        client.addListener(this)
     }
 
     override fun startChat() {
-        mqttManager?.queryTRTCRoom(null)
+        // 直接调用 startConversation，SDK 内部会通过 HTTP 获取房间信息
+        client.startConversation()
     }
 
     override fun stopChat() {
-        mqttManager?.callback = null
         client.stopConversation()
     }
 
@@ -156,7 +141,10 @@ class TRTCChatActivity: BaseChatActivity(), TRTCClientListener {
 
     override fun onError(errCode: Int, errMsg: String?) {
         Log.e(TAG, "onError, errCode: $errCode, errMsg: $errMsg")
-        ConversationManager.onSystemMessage("连接出现错误：$errMsg")
+        runOnUiThread {
+            showLoading(false)
+            ConversationManager.onSystemMessage("连接出现错误：$errMsg")
+        }
     }
 
     override fun onDestroy() {
@@ -165,12 +153,6 @@ class TRTCChatActivity: BaseChatActivity(), TRTCClientListener {
     }
 
     private fun saveConfig() {
-        // 绑定的设备信息
-//        getSharedPreferences(Constants.KEY_DEVICE_INFO_PREF, MODE_PRIVATE).edit {
-//            putString(Constants.KEY_PRODUCT_ID, config.productId)
-//            putString(Constants.KEY_DEVICE_NAME, config.deviceName)
-//        }
-//
         // 其它连接参数信息
         getSharedPreferences(Constants.KEY_CONNECT_PARAMS_PREF, MODE_PRIVATE).edit {
             putString(Constants.KEY_LANGUAGE, config.language)
