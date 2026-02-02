@@ -34,7 +34,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             }
         }
 
-        override fun onDisconnected(cause: Throwable?) {
+        override fun onDisconnected(cause: Throwable?, isManual: Boolean) {
+            Log.w(TAG, "MQTT disconnected, isManual=$isManual", cause)
+
             runOnUiThread {
                 updateMqttStatus(false)
                 enableConnect(false)

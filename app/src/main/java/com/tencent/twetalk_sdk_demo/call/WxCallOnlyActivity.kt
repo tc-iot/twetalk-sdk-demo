@@ -166,7 +166,7 @@ class WxCallOnlyActivity : BaseActivity<ActivityWxCallBinding>(), TWeTalkClientL
     private fun setupMqttCallback() {
         mqttCallback = object : MqttManager.MqttConnectionCallback {
             override fun onConnected() {}
-            override fun onDisconnected(cause: Throwable?) {
+            override fun onDisconnected(cause: Throwable?, isManual: Boolean) {
                 // MQTT 断开，结束通话
                 runOnUiThread {
                     showToast("设备已断开连接")

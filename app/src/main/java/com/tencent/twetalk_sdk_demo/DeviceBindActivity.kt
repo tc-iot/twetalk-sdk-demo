@@ -39,7 +39,7 @@ class DeviceBindActivity : BaseActivity<ActivityDeviceBindBinding>() {
             }
         }
 
-        override fun onDisconnected(cause: Throwable?) {
+        override fun onDisconnected(cause: Throwable?, isManual: Boolean) {
             // 正常断开连接（用户主动断开）不需要处理
         }
 

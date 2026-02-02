@@ -49,9 +49,12 @@ class WebSocketChatActivity : BaseChatActivity(), TWeTalkClientListener {
                 // nothing to do
             }
 
-            override fun onDisconnected(cause: Throwable?) {
-                showToast("设备已断开连接，请尝试重新连接！")
-                finish()
+            override fun onDisconnected(cause: Throwable?, isManual: Boolean) {
+                // 非主动断开连接时提示报错
+                if (!isManual) {
+                    showToast("设备已断开连接，请尝试重新连接！")
+                    finish()
+                }
             }
 
             override fun onConnectFailed(cause: Throwable?) {

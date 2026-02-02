@@ -81,8 +81,8 @@ class TalkApplication : Application() {
                         Log.i(TAG, "MQTT connected automatically")
                     }
 
-                    override fun onDisconnected(cause: Throwable?) {
-                        Log.w(TAG, "MQTT disconnected", cause)
+                    override fun onDisconnected(cause: Throwable?, isManual: Boolean) {
+                        Log.w(TAG, "MQTT disconnected, isManual=$isManual", cause)
                     }
 
                     override fun onConnectFailed(cause: Throwable?) {
