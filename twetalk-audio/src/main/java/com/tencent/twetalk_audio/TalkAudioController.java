@@ -54,7 +54,7 @@ public class TalkAudioController {
 
     // Opus 编码器
     private long opusEncoderHandle = 0;
-    private final OpusBridge opusBridge = OpusBridge.getInstance();
+    private OpusBridge opusBridge = null;
 
     // 采集状态
     private volatile boolean isRecordInitialized = false;
@@ -340,6 +340,23 @@ public class TalkAudioController {
         previousAudioMode = null;
     }
 
+    /**
+     * 懒加载获取 OpusBridge 实例
+     * 只在使用 Opus 格式时才初始化，避免在不使用时加载 native 库
+     */
+    private OpusBridge getOpusBridge() {
+        if (opusBridge == null) {
+            try {
+                opusBridge = OpusBridge.getInstance();
+                Log.i(TAG, "OpusBridge 初始化成功");
+            } catch (UnsatisfiedLinkError e) {
+                Log.e(TAG, "OpusBridge 初始化失败，可能是缺少对应架构的 native 库", e);
+                throw new RuntimeException("OpusBridge 初始化失败: " + e.getMessage(), e);
+            }
+        }
+        return opusBridge;
+    }
+
     private void initOpusEncoder() {
         try {
             OpusEncoderParams params = OpusEncoderParams.builder()
@@ -347,7 +364,7 @@ public class TalkAudioController {
                     .channels(audioConfig.channelCount)
                     .build();
 
-            opusEncoderHandle = opusBridge.createEncoder(params);
+            opusEncoderHandle = getOpusBridge().createEncoder(params);
 
             if (opusEncoderHandle == 0L) {
                 throw new RuntimeException("OpusEncoder 创建失败");
@@ -451,7 +468,7 @@ public class TalkAudioController {
 
         try {
             short[] shorts = PcmUtil.byteToShort(pcmData);
-            return opusBridge.encode(opusEncoderHandle, shorts);
+            return getOpusBridge().encode(opusEncoderHandle, shorts);
         } catch (Exception e) {
             Log.e(TAG, "Opus 编码失败", e);
             return null;
@@ -460,7 +477,7 @@ public class TalkAudioController {
 
     private void releaseRecordInternal() {
         // 释放 Opus 编码器
-        if (opusEncoderHandle != 0L) {
+        if (opusEncoderHandle != 0L && opusBridge != null) {
             opusBridge.releaseEncoder(opusEncoderHandle);
             opusEncoderHandle = 0;
         }
@@ -652,7 +669,7 @@ public class TalkAudioController {
 
     private void initOpusDecoder(int sampleRate, int channels) {
         try {
-            opusDecoderHandle = opusBridge.createDecoder(sampleRate, channels);
+            opusDecoderHandle = getOpusBridge().createDecoder(sampleRate, channels);
 
             if (opusDecoderHandle == 0L) {
                 Log.e(TAG, "OpusDecoder 创建失败");
@@ -674,9 +691,9 @@ public class TalkAudioController {
         }
 
         try {
-            int frameSamples = opusBridge.getFrameSamples(opusDecoderHandle, false) * channels;
+            int frameSamples = getOpusBridge().getFrameSamples(opusDecoderHandle, false) * channels;
             short[] pcmOut = new short[frameSamples];
-            int samplesPerCh = opusBridge.decode(opusDecoderHandle, opusData, pcmOut, false);
+            int samplesPerCh = getOpusBridge().decode(opusDecoderHandle, opusData, pcmOut, false);
 
             if (samplesPerCh <= 0) {
                 return null;
@@ -700,7 +717,7 @@ public class TalkAudioController {
     }
 
     private void releaseOpusDecoder() {
-        if (opusDecoderHandle != 0L) {
+        if (opusDecoderHandle != 0L && opusBridge != null) {
             opusBridge.releaseDecoder(opusDecoderHandle);
             opusDecoderHandle = 0;
         }
