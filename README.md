@@ -23,7 +23,7 @@ maven {
 #### 2.1 添加依赖
 
 ```kotlin
-implementation("com.tencent.twetalk:twetalk-android:1.1.3-SNAPSHOT")
+implementation("com.tencent.twetalk:twetalk-android:1.1.7-SNAPSHOT")
 ```
 
 #### 2.2 初始化客户端
@@ -138,37 +138,23 @@ client.close()       // 释放资源
 #### 3.1 添加依赖
 
 ```kotlin
-implementation("com.tencent.twetalk:twetalk-android-trtc:1.0.7-SNAPSHOT")
+implementation("com.tencent.twetalk:twetalk-android-trtc:1.0.8-SNAPSHOT")
 ```
 
 #### 3.2 初始化客户端
 
-TRTC 模式需要通过 MQTT 获取房间信息：
+TRTC 模式无需通过 MQTT 获取房间信息，可直接用特定配置参数对 Client 进行初始化：
 
 ```kotlin
-// MQTT 回调中获取 TRTC 房间配置
-mqttCallback = object : MqttManager.MqttConnectionCallback {
-    override fun onMessageReceived(topic: String?, method: String?, params: Map<String?, Any?>?) {
-        if (method == MqttManager.REPLY_QUERY_TRTC_ROOM) {
-            // 创建 TRTC 配置
-            config = TRTCConfig(applicationContext).apply {
-                sdkAppId = params["sdk_app_id"] as String
-                userId = params["user_id"] as String
-                userSig = params["user_sig"] as String
-                privateKey = params["private_key"] as String
-                roomId = params["room_id"] as String
-            }
+// 使用设备三元组初始化配置
+config = TRTCConfig(applicationContext)
+config.productId = productId
+config.deviceName = deviceName
+config.deviceSecret = deviceSecret
+config.language = language
+config.useTRTCRecord = true
 
-            // 创建客户端
-            client = DefaultTRTCClient(config)
-            client.addListener(this@YourActivity)
-            client.startConversation()
-        }
-    }
-}
-
-// 请求 TRTC 房间信息
-mqttManager?.queryTRTCRoom(null)
+client = DefaultTRTCClient(config)
 ```
 
 #### 3.3 实现监听器
