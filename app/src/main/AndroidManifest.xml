@@ -59,12 +59,6 @@
             android:theme="@style/Theme.Twetalksdkdemo" />
 
         <activity
-            android:name=".SettingsActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Twetalksdkdemo" />
-
-        <activity
             android:name=".HistoryActivity"
             android:exported="false"
             android:screenOrientation="portrait"

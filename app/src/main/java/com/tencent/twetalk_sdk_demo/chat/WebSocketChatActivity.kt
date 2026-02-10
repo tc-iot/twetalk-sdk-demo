@@ -121,7 +121,6 @@ class WebSocketChatActivity : BaseChatActivity(), TWeTalkClientListener {
     override fun startChat() {
         val params = mapOf (
             "connect_type" to MqttManager.WebSocketConnectType.TALK.value,
-            "language" to "en"
         )
 
         mqttManager?.queryWebSocketUrl(params)
