@@ -54,12 +54,16 @@ class DeviceBindActivity : BaseActivity<ActivityDeviceBindBinding>() {
             }
         }
 
-        override fun onMessageReceived(
+        override fun onTalkMessageReceived(
             topic: String,
             method: String,
             params: Map<String, Any>
         ) {
             // 在绑定阶段不需要处理消息
+        }
+
+        override fun onMqttMessageReceived(topic: String?, payload: ByteArray?) {
+            // 无需处理
         }
     }
 

@@ -193,7 +193,7 @@ class WxCallOnlyActivity : BaseActivity<ActivityWxCallBinding>(), TWeTalkClientL
             }
             override fun onConnectFailed(cause: Throwable?) {}
 
-            override fun onMessageReceived(topic: String?, method: String?, params: Map<String?, Any?>?) {
+            override fun onTalkMessageReceived(topic: String?, method: String?, params: Map<String?, Any?>?) {
                 when (method) {
                     MqttManager.REPLY_QUERY_WEBSOCKET_URL -> {
                         // 收到 WebSocket URL，根据是否是拒接操作来处理
@@ -215,6 +215,10 @@ class WxCallOnlyActivity : BaseActivity<ActivityWxCallBinding>(), TWeTalkClientL
                         }
                     }
                 }
+            }
+
+            override fun onMqttMessageReceived(topic: String?, payload: ByteArray?) {
+                // 无需处理
             }
         }
         mqttManager?.callback = mqttCallback

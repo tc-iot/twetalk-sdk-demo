@@ -53,7 +53,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             }
         }
 
-        override fun onMessageReceived(
+        override fun onTalkMessageReceived(
             topic: String,
             method: String,
             params: Map<String, Any>
@@ -67,6 +67,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     handleIncomingCallFromMqtt(roomId, openId)
                 }
             }
+        }
+
+        override fun onMqttMessageReceived(topic: String?, payload: ByteArray?) {
+            // 无需处理
         }
     }
 
@@ -404,11 +408,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
         binding.btnAiConfig.setOnClickListener {
             val intent = Intent(this, AiConfigActivity::class.java)
-            startActivity(intent)
-        }
-
-        binding.btnSettings.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
 

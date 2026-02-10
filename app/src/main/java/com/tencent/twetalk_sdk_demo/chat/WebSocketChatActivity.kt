@@ -61,7 +61,7 @@ class WebSocketChatActivity : BaseChatActivity(), TWeTalkClientListener {
                 // nothing to do
             }
 
-            override fun onMessageReceived(
+            override fun onTalkMessageReceived(
                 topic: String?,
                 method: String?,
                 params: Map<String?, Any?>?
@@ -112,6 +112,10 @@ class WebSocketChatActivity : BaseChatActivity(), TWeTalkClientListener {
                         handleCallCancelled(roomId)
                     }
                 }
+            }
+
+            override fun onMqttMessageReceived(topic: String?, payload: ByteArray?) {
+                // 无需处理
             }
         }
 

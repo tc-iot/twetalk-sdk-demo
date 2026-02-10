@@ -89,13 +89,17 @@ class TalkApplication : Application() {
                         Log.e(TAG, "MQTT connection failed", cause)
                     }
 
-                    override fun onMessageReceived(topic: String, method: String, params: Map<String, Any>) {
+                    override fun onTalkMessageReceived(topic: String, method: String, params: Map<String, Any>) {
                         Log.d(TAG, "MQTT message received, topic: $topic, method: $method")
                         Log.d(TAG, "==== MQTT message received, params: ====")
                         for (entry in params) {
                             Log.d(TAG, "${entry.key}: ${entry.value}")
                         }
                         Log.d(TAG, "========")
+                    }
+
+                    override fun onMqttMessageReceived(topic: String?, payload: ByteArray?) {
+                        // 无需处理
                     }
                 }
             )
