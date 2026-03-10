@@ -17,7 +17,7 @@ constraintlayout = "2.2.1"
 preferenceKtx = "1.2.1"
 recyclerview = "1.3.2"
 securityCrypto = "1.1.0"
-twetalkAndroid = "1.1.6-SNAPSHOT"
+twetalkAndroid = "1.1.8-SNAPSHOT"
 twetalkAndroidTrtc = "1.0.8-SNAPSHOT"
 
 [libraries]
