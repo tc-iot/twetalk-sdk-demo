@@ -149,6 +149,10 @@ class WebSocketChatActivity : BaseChatActivity(), TWeTalkClientListener {
         }
     }
 
+    override fun onSendText(text: String) {
+        client.sendTextToLLM(text, true, true)
+    }
+
     // ====================== TWeTalkClientListener 实现 ====================== //
 
     override fun onStateChanged(state: ConnectionState) {

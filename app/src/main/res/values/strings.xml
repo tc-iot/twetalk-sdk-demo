@@ -13,6 +13,7 @@
     <string name="push_to_talk">按键说话</string>
     <string name="enable_video_chat">是否开启视频聊天</string>
     <string name="enable_push_to_talk">是否开启按键说话</string>
+    <string name="enable_send_text">是否开启发送文本</string>
     <string name="click_to_toggle">点击切换</string>
     <string name="opus">OPUS</string>
     <string name="pcm">PCM</string>
@@ -51,6 +52,8 @@
     <string name="processing">处理中...</string>
     <string name="start_recording">开启录音</string>
     <string name="stop_recording">停止录音</string>
+    <string name="text_input_hint">输入要发送的文本…</string>
+    <string name="recording_duration">%1$ds</string>
     <string name="you">你</string>
     <string name="ai">AI</string>
     

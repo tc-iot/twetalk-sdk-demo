@@ -94,7 +94,7 @@
         android:background="@color/white"
         android:orientation="vertical"
         android:padding="@dimen/chat_control_panel_padding"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/textInputPanel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -122,6 +122,7 @@
 
         <!-- 录音控制按钮区域 -->
         <LinearLayout
+            android:id="@+id/recordButtonContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -150,6 +151,77 @@
             android:text="@string/hold_to_speak"
             android:textColor="@color/gray_text"
             android:textSize="@dimen/chat_record_hint_text_size" />
+    </LinearLayout>
+
+    <!-- 文本发送区域 -->
+    <LinearLayout
+        android:id="@+id/textInputPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:paddingHorizontal="4dp"
+        android:paddingVertical="2dp"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" >
+
+        <!-- 录音切换按钮 -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabRecordInText"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginHorizontal="4dp"
+            android:contentDescription="@string/hold_to_speak"
+            app:backgroundTint="@color/primary_blue"
+            app:fabCustomSize="28dp"
+            app:fabSize="mini"
+            app:maxImageSize="16dp"
+            app:srcCompat="@drawable/ic_mic"
+            app:tint="@color/white" />
+
+        <!-- 文本输入框 -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            app:hintEnabled="false"
+            app:boxBackgroundMode="outline"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTextInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="40dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:inputType="textMultiLine"
+                android:maxLines="4"
+                android:minLines="1"
+                android:textSize="14sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- 发送按钮 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSendText"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginHorizontal="4dp"
+            android:enabled="false"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            app:icon="@drawable/ic_send"
+            app:iconSize="16dp"
+            app:iconTint="@color/primary_blue" />
 
     </LinearLayout>
 

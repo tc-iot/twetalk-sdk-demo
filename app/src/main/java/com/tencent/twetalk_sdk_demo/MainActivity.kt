@@ -252,6 +252,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 val isPushToTalk = this.getBoolean(Constants.KEY_PUSH_TO_TALK, false)
                 switchPushToTalk.isChecked = isPushToTalk
 
+                val isSendText = this.getBoolean(Constants.KEY_SEND_TEXT, false)
+                switchSendText.isChecked = isSendText
+
                 val language = this.getString(Constants.KEY_LANGUAGE, "zh")
 
                 if (language == "en") {
@@ -364,6 +367,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             putString(Constants.KEY_LANGUAGE, selectedLanguage)
             putBoolean(Constants.KEY_VIDEO_MODE, binding.switchVideoChat.isChecked)
             putBoolean(Constants.KEY_PUSH_TO_TALK, binding.switchPushToTalk.isChecked)
+            putBoolean(Constants.KEY_SEND_TEXT, binding.switchSendText.isChecked)
             putString(Constants.KEY_BOT_ID, botId)
         }
 
@@ -386,6 +390,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             putString(Constants.KEY_LANGUAGE, selectedLanguage)
             putBoolean(Constants.KEY_VIDEO_MODE, binding.switchVideoChat.isChecked)
             putBoolean(Constants.KEY_PUSH_TO_TALK, binding.switchPushToTalk.isChecked)
+            putBoolean(Constants.KEY_SEND_TEXT, binding.switchSendText.isChecked)
             putString(Constants.KEY_BOT_ID, botId)
         }
 

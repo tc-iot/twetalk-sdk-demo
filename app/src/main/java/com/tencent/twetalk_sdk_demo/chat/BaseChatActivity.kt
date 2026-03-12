@@ -63,6 +63,7 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
     protected var isConnected = false
     protected var isVideoMode = false
     protected var isPushToTalkMode = false  // 按键说话模式
+    protected var isSendTextMode = false   // 是否启用发送文本模式
     protected var cameraManager: VideoChatCameraManager? = null
 
     // 统一音频控制器
@@ -137,6 +138,8 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
             ?.getBoolean(Constants.KEY_VIDEO_MODE) ?: false
         isPushToTalkMode = intent.getBundleExtra(Constants.KEY_CHAT_BUNDLE)
             ?.getBoolean(Constants.KEY_PUSH_TO_TALK) ?: false
+        isSendTextMode = intent.getBundleExtra(Constants.KEY_CHAT_BUNDLE)
+            ?.getBoolean(Constants.KEY_SEND_TEXT) ?: false
 
         loadConnectionInfo()
 
@@ -400,6 +403,7 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
 
     private fun setupAudioControls() {
         setupRecordButton()
+        setupTextInputPanel()
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -443,6 +447,90 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
         }
     }
 
+    // ====================== 文本发送区域 ====================== //
+
+    // 录音计时器
+    private var recordingStartTime = 0L
+    private val recordingTimerRunnable = object : Runnable {
+        override fun run() {
+            val elapsed = ((System.currentTimeMillis() - recordingStartTime) / 1000).toInt()
+            binding.tvAudioStatus.text = getString(R.string.recording_duration, elapsed)
+            handler.postDelayed(this, 1000)
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupTextInputPanel() {
+        if (!isSendTextMode) {
+            binding.textInputPanel.visibility = View.GONE
+            return
+        }
+
+        // 发送文本模式：隐藏录音按钮和提示文本
+        binding.recordButtonContainer.visibility = View.GONE
+        binding.tvRecordHint.visibility = View.GONE
+        binding.textInputPanel.visibility = View.VISIBLE
+
+        // 文本框内容变化时控制发送按钮可用状态
+        binding.etTextInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                binding.btnSendText.isEnabled = !s.isNullOrBlank()
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
+        // 发送按钮点击：调用 SDK sendTextToLLM，清空文本框
+        binding.btnSendText.setOnClickListener {
+            val text = binding.etTextInput.text?.toString()?.trim() ?: return@setOnClickListener
+            if (text.isNotBlank()) {
+                onSendText(text)
+                binding.etTextInput.setText("")
+            }
+        }
+
+        // 文本区的录音按钮
+        if (isPushToTalkMode) {
+            // 按键说话模式：按住录音+计时，松开停止
+            binding.fabRecordInText.setOnTouchListener { _, event ->
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        startRecording()
+                        startRecordingTimer()
+                        true
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        stopRecording()
+                        stopRecordingTimer()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        } else {
+            // 非按键说话模式：点击切换录音状态
+            binding.fabRecordInText.setOnClickListener {
+                if (isRecording) stopRecording() else startRecording()
+            }
+        }
+    }
+
+    private fun startRecordingTimer() {
+        if (!isTinyScreen) {
+            binding.audioVisualizerContainer.visibility = View.VISIBLE
+        }
+        recordingStartTime = System.currentTimeMillis()
+        binding.tvAudioStatus.text = getString(R.string.recording_duration, 0)
+        handler.post(recordingTimerRunnable)
+    }
+
+    private fun stopRecordingTimer() {
+        handler.removeCallbacks(recordingTimerRunnable)
+        binding.tvAudioStatus.text = getString(R.string.processing)
+    }
+
+    protected open fun onSendText(text: String) {}
+
     private fun bindCollector() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -468,6 +556,12 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
                 audioControlPanel.visibility = View.GONE
             } else {
                 audioControlPanel.visibility = View.VISIBLE
+            }
+
+            // 发送文本模式：隐藏录音按钮和提示文本，保留 audioVisualizerContainer
+            if (isSendTextMode) {
+                recordButtonContainer.visibility = View.GONE
+                tvRecordHint.visibility = View.GONE
             }
         }
     }
@@ -574,7 +668,7 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
             showToast("音频控制器未就绪，请重试")
             return
         }
-        
+
         if (isRecording) {
             return
         }
@@ -584,14 +678,18 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
 
         if (!isVideoMode && isNotInCall()) {
             lifecycleScope.launch {
-                updateRecordingUI(true)
-                if (isPushToTalkMode) {
-                    binding.tvRecordHint.text = getString(R.string.release_to_send)
+                if (isSendTextMode) {
+                    // 发送文本模式：更新 fabRecordInText 状态
+                    updateFabRecordInTextUI(true)
                 } else {
-                    binding.tvRecordHint.text = getString(R.string.stop_recording)
+                    updateRecordingUI(true)
+                    if (isPushToTalkMode) {
+                        binding.tvRecordHint.text = getString(R.string.release_to_send)
+                    } else {
+                        binding.tvRecordHint.text = getString(R.string.stop_recording)
+                    }
+                    animateRecording()
                 }
-
-                animateRecording()
             }
         }
     }
@@ -600,32 +698,47 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
         if (!isRecording) {
             return
         }
-        
+
         isRecording = false
         audioController?.stopRecord()
 
         if (!isVideoMode && isNotInCall()) {
             lifecycleScope.launch {
-                updateRecordingUI(false)
-                if (isPushToTalkMode) {
-                    binding.tvRecordHint.text = getString(R.string.hold_to_speak)
+                if (isSendTextMode) {
+                    // 发送文本模式：恢复 fabRecordInText 状态
+                    updateFabRecordInTextUI(false)
                 } else {
-                    binding.tvRecordHint.text = getString(R.string.start_recording)
+                    updateRecordingUI(false)
+                    if (isPushToTalkMode) {
+                        binding.tvRecordHint.text = getString(R.string.hold_to_speak)
+                    } else {
+                        binding.tvRecordHint.text = getString(R.string.start_recording)
+                    }
+                    binding.tvAudioStatus.text = getString(R.string.processing)
                 }
-                binding.tvAudioStatus.text = getString(R.string.processing)
             }
         }
     }
 
     private fun updateRecordingUI(recording: Boolean) {
         if (recording) {
-            binding.fabRecord.backgroundTintList = 
+            binding.fabRecord.backgroundTintList =
                 ContextCompat.getColorStateList(this, R.color.error_red)
             binding.fabRecord.setImageResource(R.drawable.ic_mic_recording)
         } else {
-            binding.fabRecord.backgroundTintList = 
+            binding.fabRecord.backgroundTintList =
                 ContextCompat.getColorStateList(this, R.color.primary_blue)
             binding.fabRecord.setImageResource(R.drawable.ic_mic)
+        }
+    }
+
+    private fun updateFabRecordInTextUI(recording: Boolean) {
+        if (recording) {
+            binding.fabRecordInText.backgroundTintList =
+                ContextCompat.getColorStateList(this, R.color.error_red)
+        } else {
+            binding.fabRecordInText.backgroundTintList =
+                ContextCompat.getColorStateList(this, R.color.primary_blue)
         }
     }
 
