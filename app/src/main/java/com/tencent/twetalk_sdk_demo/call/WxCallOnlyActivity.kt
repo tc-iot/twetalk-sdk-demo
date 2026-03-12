@@ -23,10 +23,7 @@ import com.tencent.twetalk.core.TWeTalkConfig
 import com.tencent.twetalk.metrics.MetricEvent
 import com.tencent.twetalk.mqtt.MqttManager
 import com.tencent.twetalk.protocol.AudioFormat
-import com.tencent.twetalk.protocol.CallStream
-import com.tencent.twetalk.protocol.CallSubType
 import com.tencent.twetalk.protocol.TWeTalkMessage
-import com.tencent.twetalk.protocol.TweCallMessage
 import com.tencent.twetalk.transport.WebSocketTransport
 import com.tencent.twetalk_sdk_demo.BaseActivity
 import com.tencent.twetalk_sdk_demo.R
@@ -631,9 +628,6 @@ class WxCallOnlyActivity : BaseActivity<ActivityWxCallBinding>(), TWeTalkClientL
 
     override fun onRecvTalkMessage(type: TWeTalkMessage.TWeTalkMessageType, text: String?) {
         // 通话场景不处理对话消息
-    }
-
-    override fun onRecvCallMessage(stream: CallStream, subType: CallSubType, data: TweCallMessage.TweCallData) {
     }
 
     override fun onMetrics(metrics: MetricEvent?) {}

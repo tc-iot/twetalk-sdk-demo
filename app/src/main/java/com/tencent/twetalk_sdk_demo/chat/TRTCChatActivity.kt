@@ -5,11 +5,11 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.tencent.twetalk.metrics.MetricEvent
 import com.tencent.twetalk.protocol.AudioFormat
-import com.tencent.twetalk.protocol.CallStream
-import com.tencent.twetalk.protocol.CallSubType
+import com.tencent.twetalk.protocol.call.CallStream
+import com.tencent.twetalk.protocol.call.CallSubType
 import com.tencent.twetalk.protocol.ImageMessage
 import com.tencent.twetalk.protocol.TWeTalkMessage
-import com.tencent.twetalk.protocol.TweCallMessage
+import com.tencent.twetalk.protocol.call.TweCallMessage
 import com.tencent.twetalk_sdk_demo.R
 import com.tencent.twetalk_sdk_demo.data.Constants
 import com.tencent.twetalk_sdk_trtc.config.TRTCConfig

@@ -11,12 +11,13 @@ import com.tencent.twetalk.core.TWeTalkConfig
 import com.tencent.twetalk.metrics.MetricEvent
 import com.tencent.twetalk.mqtt.MqttManager
 import com.tencent.twetalk.protocol.AudioFormat
-import com.tencent.twetalk.protocol.CallStream
-import com.tencent.twetalk.protocol.CallSubType
 import com.tencent.twetalk.protocol.FrameProcessor
 import com.tencent.twetalk.protocol.ImageMessage
+import com.tencent.twetalk.protocol.ServerMessageListener
 import com.tencent.twetalk.protocol.TWeTalkMessage
-import com.tencent.twetalk.protocol.TweCallMessage
+import com.tencent.twetalk.protocol.call.CallStream
+import com.tencent.twetalk.protocol.call.CallSubType
+import com.tencent.twetalk.protocol.call.TweCallMessage
 import com.tencent.twetalk_sdk_demo.R
 import com.tencent.twetalk_sdk_demo.call.CallConfigManager
 import com.tencent.twetalk_sdk_demo.data.Constants
@@ -96,6 +97,7 @@ class WebSocketChatActivity : BaseChatActivity(), TWeTalkClientListener {
 
                         client = DefaultTWeTalkClient(config)
                         client.addListener(this@WebSocketChatActivity)
+                        client.setServerMessageListener(serverMessageListener)
                         client.connect()
                     }
 
@@ -203,14 +205,6 @@ class WebSocketChatActivity : BaseChatActivity(), TWeTalkClientListener {
         handleRecvTalkMessage(type, text)
     }
 
-    override fun onRecvCallMessage(
-        stream: CallStream,
-        subType: CallSubType,
-        data: TweCallMessage.TweCallData
-    ) {
-        handleRecvCallMessage(stream, subType, data)
-    }
-
     override fun onMetrics(metrics: MetricEvent?) {
         if (metrics?.type == MetricEvent.Type.RTT) {
             Log.d(TAG, "onMetrics: $metrics")
@@ -220,6 +214,26 @@ class WebSocketChatActivity : BaseChatActivity(), TWeTalkClientListener {
     override fun onError(error: Throwable?) {
         Log.e(TAG, "onError", error)
         ConversationManager.onSystemMessage("连接出现错误，对话已结束")
+    }
+
+    // ====================== ServerMessageListener 实现 ====================== //
+
+    private val serverMessageListener = object : ServerMessageListener {
+        override fun onRequestImage() {
+            cameraManager?.captureImage()
+        }
+
+        override fun onTWeCall(stream: CallStream, subType: CallSubType, data: TweCallMessage.TweCallData) {
+            handleRecvCallMessage(stream, subType, data)
+        }
+
+        override fun onIdleDetection(retryCount: Int) {
+            Log.d(TAG, "onIdleDetection, retryCount: $retryCount")
+        }
+
+        override fun onPTTForceStop(reason: String?, maxDurationSecs: Double) {
+            Log.d(TAG, "onPTTForceStop, reason: $reason, maxDurationSecs: $maxDurationSecs")
+        }
     }
 
     // ====================== 通话消息发送 ====================== //
