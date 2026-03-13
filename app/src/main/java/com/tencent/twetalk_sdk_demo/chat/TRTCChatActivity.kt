@@ -90,6 +90,10 @@ class TRTCChatActivity: BaseChatActivity(), TRTCClientListener {
     override fun sendDeviceHangupForIncomingMessage(roomId: String) {}
     override fun sendDeviceHangupForOutgoingMessage() {}
 
+    // TRTC 模式暂不支持 PTT
+    override fun onPTTStart() {}
+    override fun onPTTStop() {}
+
     override fun onStateChanged(state: TRTCClientState?) {
         when (state) {
             TRTCClientState.IDLE -> {}

@@ -207,6 +207,17 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
     abstract fun sendDeviceHangupForIncomingMessage(roomId: String)
     abstract fun sendDeviceHangupForOutgoingMessage()
 
+    // PTT 模式
+    abstract fun onPTTStart()
+    abstract fun onPTTStop()
+
+    protected fun onPTTForceStopRecording(reason: String?, maxDurationSecs: Double) {
+        runOnUiThread {
+            stopRecording()
+            showToast("说话超时，已自动停止")
+        }
+    }
+
     protected fun updateConnectState() {
         // 更新状态显示
         lifecycleScope.launch {
@@ -415,6 +426,7 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
                     MotionEvent.ACTION_DOWN -> {
                         if (!isRecording) {
                             startRecording()
+                            onPTTStart()
                         }
                         true
                     }
@@ -422,6 +434,7 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                         if (isRecording) {
                             stopRecording()
+                            onPTTStop()
                         }
                         true
                     }
@@ -496,11 +509,13 @@ abstract class BaseChatActivity : BaseActivity<ActivityChatBinding>() {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         startRecording()
+                        onPTTStart()
                         startRecordingTimer()
                         true
                     }
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                         stopRecording()
+                        onPTTStop()
                         stopRecordingTimer()
                         true
                     }

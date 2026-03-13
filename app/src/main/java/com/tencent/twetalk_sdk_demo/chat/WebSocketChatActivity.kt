@@ -88,6 +88,11 @@ class WebSocketChatActivity : BaseChatActivity(), TWeTalkClientListener {
                             if (!botId.isNullOrEmpty()) {
                                 setBotId(botId)
                             }
+
+                            // PTT 模式
+                            if (isPushToTalkMode) {
+                                userTurnMode = "push_to_talk"
+                            }
                         }
 
                         config = TWeTalkConfig.builder()
@@ -151,6 +156,14 @@ class WebSocketChatActivity : BaseChatActivity(), TWeTalkClientListener {
 
     override fun onSendText(text: String) {
         client.sendTextToLLM(text, true, true)
+    }
+
+    override fun onPTTStart() {
+        client.pttStart()
+    }
+
+    override fun onPTTStop() {
+        client.pttStop()
     }
 
     // ====================== TWeTalkClientListener 实现 ====================== //
@@ -240,6 +253,7 @@ class WebSocketChatActivity : BaseChatActivity(), TWeTalkClientListener {
 
         override fun onPTTForceStop(reason: String?, maxDurationSecs: Double) {
             Log.d(TAG, "onPTTForceStop, reason: $reason, maxDurationSecs: $maxDurationSecs")
+            onPTTForceStopRecording(reason, maxDurationSecs)
         }
     }
 
