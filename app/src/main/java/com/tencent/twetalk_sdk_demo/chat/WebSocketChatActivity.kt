@@ -188,6 +188,9 @@ class WebSocketChatActivity : BaseChatActivity(), TWeTalkClientListener {
 
                 // 监听通话操作
                 observeCallActions()
+
+                // 关闭静默检测
+                client.disableIdleDetection()
             }
 
             ConnectionState.RECONNECTING -> showLoading(true, getString(R.string.reconnecting))
