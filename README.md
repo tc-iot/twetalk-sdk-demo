@@ -23,7 +23,7 @@ maven {
 #### 2.1 添加依赖
 
 ```kotlin
-implementation("com.tencent.twetalk:twetalk-android:1.1.8-SNAPSHOT")
+implementation("com.tencent.twetalk:twetalk-android:1.1.9-SNAPSHOT")
 ```
 
 #### 2.2 初始化客户端
@@ -69,7 +69,8 @@ mqttManager?.queryWebSocketUrl(params)
 #### 2.3 实现监听器
 
 ```kotlin
-class YourActivity : TWeTalkClientListener {
+// TWeTalkClientListener
+TWeTalkClientListener {
     override fun onStateChanged(state: ConnectionState) {
         when (state) {
             ConnectionState.CONNECTED -> {
@@ -98,16 +99,31 @@ class YourActivity : TWeTalkClientListener {
         }
     }
 
-    override fun onRecvCallMessage(stream: CallStream, subType: CallSubType, data: TweCallMessage.TweCallData) {
-        // 处理通话消息（如接听、挂断等）
-    }
-
     override fun onMetrics(metrics: MetricEvent?) {
-        // 可选：监听性能指标
+        // 监听性能指标
     }
 
     override fun onError(error: Throwable?) {
         // 处理错误
+    }
+}
+
+// ServerMessageListener：监听服务端下发的事件
+ServerMessageListener {
+    override fun onRequestImage() {
+        // 请求图片
+    }
+
+    override fun onTWeCall(stream: CallStream, subType: CallSubType, data: TweCallMessage.TweCallData) {
+        // Call 通话消息
+    }
+
+    override fun onIdleDetection(retryCount: Int) {
+        // 空闲检测
+    }
+
+    override fun onPTTForceStop(reason: String?, maxDurationSecs: Double) {
+        // 按键说话模式下强制停止录音
     }
 }
 ```
@@ -124,6 +140,9 @@ client.sendCustomMsg(msg)
 
 // 发送图片
 client.sendImage(imageMessage)
+
+// 发送文本
+client.sendTextToLLM(text, true, true)
 ```
 
 #### 2.5 断开连接
@@ -138,7 +157,7 @@ client.close()       // 释放资源
 #### 3.1 添加依赖
 
 ```kotlin
-implementation("com.tencent.twetalk:twetalk-android-trtc:1.0.8-SNAPSHOT")
+implementation("com.tencent.twetalk:twetalk-android-trtc:1.0.9-SNAPSHOT")
 ```
 
 #### 3.2 初始化客户端
@@ -302,7 +321,6 @@ client.destroy()           // 释放资源
 **注意事项：**
 
 - 使用 Demo 前需要在腾讯云物联网开发平台创建产品并获取相关配置信息。
-- 如设备不支持 AEC 功能，在视频聊天时可能会出现 AI 自问自答的情况，此时要想获取更好的对话体验，需将视频聊天对话方式修改为**按键说话**，目前操作是切到 release_demo_for_paixueji 分支，再重新编译安装运行，后续会尽快优化这方面的体验，敬请期待。
 
 ## 注意事项
 
